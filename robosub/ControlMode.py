@@ -8,9 +8,11 @@ from geometry_msgs.msg import Twist
 from mavros_msgs.srv import CommandBool
 from mavros_msgs.msg import OverrideRCIn
 from sensor_msgs.msg import Imu
-from setRCOutput import SetOutput
-from setVelocity import SetVelocity
-from setPosition import SetPosition
+import HeadingController
+import VelocityController
+import PositionController
+import setRCOutput
+
 
 '''
 A python script to practice receiving ROS messages
@@ -24,28 +26,28 @@ class ControlMode():
         # publishing objects
         self.chatter_sub = rospy.Subscriber("/control/mode", String, self.chatter_callback)
         self.arming = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
-        self.accelX = []
-        self.accelY = []
-        self.accelZ = []
-        self.velX = []
-        self.velY = []
-        self.velZ = []
+        self.mode = 'output'
 
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
         '''
+        if self.mode == msg.data:
+            return
         self.mode = msg.data
+        self.out.stop()
         print("Switching to mode: {}".format(self.mode))
         if self.mode == 'output':
-            self.out = SetOutput()
+            self.out = setRCOutput.setMotor
             zero = [1500]*8
-            msg = OverrideRCIn(zero)
         elif self.mode == 'velocity':
-            self.out = SetVelocity()
-            msg = Vector3(0.0,0.0,0.0)
+            self.out = VelocityController.sender
+            msg = (0.0,0.0,0.0)
         elif self.mode == 'position':
-            self.out = SetPosition()
-            msg = Vector3(0.0,0.0,0.0)
+            self.out = PositionController.sender
+            msg = (0.0,0.0,0.0)
+        elif self.mode == 'heading':
+            self.out = HeadingController.sender
+            msg = 0.0
         elif self.mode == 'disarm':
             self.arming(False)
             return
@@ -69,18 +71,19 @@ class SetControlMode():
                 string data
         '''
         self.chatter_pub.publish(msg)
+        
       
-
+rospy.init_node('ControlMode')
+mode = ControlMode()
+print("ControlMode listener node running")
+sender = SetControlMode()
+print("ControlMode publisher running")
 
 if __name__ == '__main__':
     '''
     This is where the code starts running
     '''
-    rospy.init_node('ControlMode')
-    listen = ControlMode()
-    print("ControlMode listener node running")
-    sender = SetControlMode()
-    print("ControlMode publisher running")
+
     msg = String('output')
     sender.send(msg)
     rospy.spin()

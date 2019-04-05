@@ -15,7 +15,6 @@ class PID:
         self.prevError = 0.0
         self.prevIntegral = 0.0
         self.prevTime = 0.0
-        self.setpoint = 0.0
 
     def setSetpoint(self, setpoint):
         self.setpoint = setpoint

@@ -52,4 +52,6 @@ def integrate(arr):
 rospy.init_node('imu_listener')
 imu = IMUListener()
 print("IMU Listener node running")
-rospy.spin()
+
+if __name__ == '__main__':
+    rospy.spin()

@@ -28,4 +28,6 @@ class YawListener():
 rospy.init_node('yaw_listener')
 yawl = YawListener()
 print("Yaw listener node running")
-rospy.spin()
+
+if __name__ == '__main__':
+    rospy.spin()
