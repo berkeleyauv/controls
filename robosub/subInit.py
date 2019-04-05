@@ -1,8 +1,10 @@
-from setMode import SetControlMode
-from setRCOutput import SetOutput
-from setVelocity import SetVelocity
-from setPosition import SetPosition
-import rospy
+import ControlMode
+import getIMUData
+import getYaw
+import setRCOutput
+import VelocityController
+import HeadingController
+import PositionController
 import traceback
 import sys
 
@@ -11,8 +13,8 @@ class Main:
 
     def __init__(self):
         rospy.init_node("SubInit")
-        self.mode = SetControlMode()
-        self.out = SetOutput()
+        self.mode = ControlMode.sender
+        self.out = setRCOutput.setMotor
         zero = [1500]*8
         self.mode.send('output')
         self.out.send(zero)
@@ -20,11 +22,17 @@ class Main:
     def run(self, mode, output):
         self.mode.send(mode)
         if mode == 'output':
-            self.out = SetOutput()
+            self.out = setRCOutput.setMotor
+            msg = output + [1500, 1500]
         elif mode == 'velocity':
-            self.out = SetVelocity()
+            self.out = VelocityController.sender
+            msg = output
         elif mode == 'position':
-            self.out = SetPosition()
+            self.out = PositionController.sender
+            msg = output
+        elif mode == 'heading':
+            self.out = HeadingController.sender
+            msg = output[0]
         else:
             return
         self.out.send(msg)
@@ -33,11 +41,12 @@ class Main:
 if __name__ == '__main__':
     try:
         m = Main()
-        while True:
+        while not rospy.is_shutdown():
             inputString = input("Provide [mode] [output]").split()
-            mode = inputString[0]
-            output = [int(item) for item in inputString[1:]]
-            a.run(mode, output)
+            if inputString:
+                mode = inputString[0]
+                output = [int(item) for item in inputString[1:]]
+                a.run(mode, output)
     except KeyboardInterrupt:
         print("Sub shutting down...")
     except Exception as e:

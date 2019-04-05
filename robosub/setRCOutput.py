@@ -25,9 +25,6 @@ class SetOutput():
         # rate of publishing
         self.chat_frequency = rospy.Rate(chat_frequency)
 
-        self.mode(0, "MANUAL")
-        self.arming(True)
-
     def send(self, msg):
         ''' Send messages on chatter topic at regular rate
             int[8]:
@@ -51,15 +48,19 @@ class SetOutput():
         #     #msg.header.stamp = rospy.Time.now()
         #     self.chatter_pub.publish(msg)
         #     self.chat_frequency.sleep()
+        msg = OverrideRCIn(msg)
+        self.mode(0, "MANUAL")
+        self.arming(True)
         self.chatter_pub.publish(msg)
+
+rospy.init_node('RC_override')
+setMotor = SetOutput()
+print("SetMotor node running")
 
 if __name__ == '__main__':
     '''
     This is where the code starts running
     '''
-    rospy.init_node('RC_override')
-    td = SetOutput()
-    print("Talker node running")
     channels = [1500]*8
     
     # msg = ManualControl()
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     channels[4]  =  1500 # Forward
     channels[5]  =  1500 # Lateral
 
-    msg = OverrideRCIn(channels)
+    #msg = OverrideRCIn(channels)
 
     # start the chatter
-    td.send([msg])
+    setMotor.send(channels)
