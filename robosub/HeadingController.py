@@ -6,7 +6,7 @@ import rospy
 from std_msgs.msg import String, Float64
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
-from getIMUData import 
+from getIMUData import imu
 from PIDController import PID
 from threading import Thread, Lock
 from getYaw import yawl
