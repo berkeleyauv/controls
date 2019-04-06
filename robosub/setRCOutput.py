@@ -18,12 +18,14 @@ class SetOutput():
     def __init__(self, chat_frequency=1.0):
 
         # publishing objects
-        self.chatter_pub = rospy.Publisher("/mavros/rc/override", OverrideRCIn, queue_size=1)
+        self.chatter_pub = rospy.Publisher("/mavros/rc/override", OverrideRCIn, queue_size=10)
         #self.chatter_pub = rospy.Publisher("/mavros/manual_control/send", ManualControl, queue_size=1)
         self.arming = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
         self.mode = rospy.ServiceProxy('/mavros/set_mode', SetMode)
         # rate of publishing
-        self.chat_frequency = rospy.Rate(chat_frequency)
+        #self.chat_frequency = rospy.Rate(0.25)
+        self.mode(0, "MANUAL")
+        self.arming(True)
 
     def send(self, msg):
         ''' Send messages on chatter topic at regular rate
@@ -41,7 +43,7 @@ class SetOutput():
                 10	    Lights 2 Level
         '''
         # i = 0
-        # while (not rospy.is_shutdown()):
+        #while (not rospy.is_shutdown()):
         #     i = i + 1
             
         #     #msg.header.seq = i
@@ -49,18 +51,24 @@ class SetOutput():
         #     self.chatter_pub.publish(msg)
         #     self.chat_frequency.sleep()
         msg = OverrideRCIn(msg)
-        self.mode(0, "MANUAL")
-        self.arming(True)
+        print('received', msg)
+        #while not rospy.is_shutdown():
         self.chatter_pub.publish(msg)
+        #self.chat_frequency.sleep()
+#        self.chatter_pub.publish(msg)
+
 
 rospy.init_node('RC_override')
 setMotor = SetOutput()
 print("SetMotor node running")
+rospy.sleep(.5)
+
 
 if __name__ == '__main__':
     '''
     This is where the code starts running
     '''
+
     channels = [1500]*8
     
     # msg = ManualControl()
@@ -89,10 +97,13 @@ if __name__ == '__main__':
     channels[1]  =  1500 # Roll
     channels[2]  =  1500 # Throttle
     channels[3]  =  1500 # Yaw
-    channels[4]  =  1500 # Forward
+    channels[4]  =  1600 # Forward
     channels[5]  =  1500 # Lateral
 
     #msg = OverrideRCIn(channels)
 
     # start the chatter
-    setMotor.send(channels)
+
+    msg = channels
+    print("Sending", msg)
+    setMotor.send(msg)
