@@ -5,7 +5,6 @@ from __future__ import division, print_function
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped
-from mavros_msgs.srv import CommandBool, SetMode
 from mavros_msgs.msg import ManualControl, OverrideRCIn
 
 '''
@@ -20,12 +19,9 @@ class SetOutput():
         # publishing objects
         self.chatter_pub = rospy.Publisher("/mavros/rc/override", OverrideRCIn, queue_size=10)
         #self.chatter_pub = rospy.Publisher("/mavros/manual_control/send", ManualControl, queue_size=1)
-        self.arming = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
-        self.mode = rospy.ServiceProxy('/mavros/set_mode', SetMode)
         # rate of publishing
         #self.chat_frequency = rospy.Rate(0.25)
-        self.mode(0, "MANUAL")
-        self.arming(True)
+        
 
     def send(self, msg):
         ''' Send messages on chatter topic at regular rate
@@ -51,23 +47,24 @@ class SetOutput():
         #     self.chatter_pub.publish(msg)
         #     self.chat_frequency.sleep()
         msg = OverrideRCIn(msg)
-        print('received', msg)
         #while not rospy.is_shutdown():
         self.chatter_pub.publish(msg)
         #self.chat_frequency.sleep()
 #        self.chatter_pub.publish(msg)
 
 
-rospy.init_node('RC_override')
-setMotor = SetOutput()
-print("SetMotor node running")
-rospy.sleep(.5)
-
 
 if __name__ == '__main__':
     '''
     This is where the code starts running
     '''
+    rospy.init_node('RC_override')
+    rospy.sleep(.5)
+
+setMotor = SetOutput()
+print("SetMotor node running")
+
+if __name__ == '__main__':
 
     channels = [1500]*8
     
@@ -105,5 +102,5 @@ if __name__ == '__main__':
     # start the chatter
 
     msg = channels
-    print("Sending", msg)
     setMotor.send(msg)
+

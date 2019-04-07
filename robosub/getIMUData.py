@@ -18,6 +18,7 @@ class IMUListener():
 
         # publishing objects
         self.chatter_sub = rospy.Subscriber("/mavros/imu/data", Imu, self.chatter_callback)
+        self.start = rospy.get_time()
         self.accelX = []
         self.accelY = []
         self.accelZ = []
@@ -28,18 +29,22 @@ class IMUListener():
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
         '''
-        self.accelX.append(msg.linear_acceleration.x)
-        self.accelY.append(msg.linear_acceleration.y)
-        self.accelZ.append(msg.linear_acceleration.z)
-        self.velX.append(integrate(accelX))
-        self.velY.append(integrate(accelY))
-        self.velZ.append(integrate(accelZ))
-        self.position = (integrate(self.velX), integrate(self.velY), integrate(self.velZ))
-        print("Linear vel: {}".format((self.velX[-1], self.velY[-1], self.velZ[-1])))
-        print("Position: {}".format(self.position))
-        print("Linear accel: {}".format(msg.linear_acceleration))
-        print("Angular vel: {}".format(msg.angular_velocity))
-        print("Orientation: {}".format(msg.orientation))
+        self.accelX.append((rospy.get_time()-self.start, msg.linear_acceleration.x))
+        self.accelY.append((rospy.get_time()-self.start, msg.linear_acceleration.y))
+        self.accelZ.append((rospy.get_time()-self.start, msg.linear_acceleration.z))
+        self.velX.append(integrate(self.accelX))
+        self.velY.append(integrate(self.accelY))
+        self.velZ.append(integrate(self.accelZ))
+        #self.position = (integrate(self.velX), integrate(self.velY), integrate(self.velZ))
+        #print("Linear vel: {}".format((self.velX[-1], self.velY[-1], self.velZ[-1])))
+        # print("Position: {}".format(self.position))
+        
+        self.linear_acceleration = msg.linear_acceleration
+        self.angular_velocity = msg.angular_velocity
+        self.orientation = msg.orientation
+        # print("Linear accel: {}".format(msg.linear_acceleration))
+        # print("Angular vel: {}".format(msg.angular_velocity))
+        # print("Orientation: {}".format(msg.orientation))
 
 def integrate(arr):
     total = 0
@@ -47,9 +52,11 @@ def integrate(arr):
     for i in range(1, len(arr)):
         time, val = arr[i]
         total += (time-prevTime) * (prevVal + val) / 2
+        prevTime = time
+        prevVal = val
     return total
 
-rospy.init_node('imu_listener')
+#rospy.init_node('imu_listener')
 imu = IMUListener()
 print("IMU Listener node running")
 

@@ -4,9 +4,6 @@ from __future__ import division, print_function
 
 import rospy
 from std_msgs.msg import String, Float64
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import Imu
-from getIMUData import imu
 from PIDController import PID
 from threading import Thread, Lock
 from getYaw import yawl
@@ -16,19 +13,15 @@ from setRCOutput import setMotor
 A python script to practice receiving ROS messages
 '''
 
-class HeadingController(Thread):
+class HeadingController():
     ''' Subscribes to ROS messages
     '''
     def __init__(self):
-        Thread.__init__(self)
         self.chatter_sub = rospy.Subscriber("/control/heading", Float64, self.chatter_callback)
         self.pid = PID(0.5, 0.0, 0.0)
         self.yaw = lambda: yawl.yaw
         self.rate = rospy.Rate(50)
-
-    def stop(self):
-        if self.thread:
-            self.thread.stop()
+        self.thread = None
 
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
@@ -38,6 +31,10 @@ class HeadingController(Thread):
         self.pid.setSetpoint(msg.data)
         self.thread = self.PIDThread()
         self.thread.start(self.pid, self.yaw)
+
+    def stop(self):
+        if self.thread:
+            self.thread.stop()
     
     class PIDThread(Thread):
 
@@ -78,10 +75,10 @@ class SetHeading():
         msg = Float64(msg)
         self.chatter_pub.publish(msg)
 
-rospy.init_node('HeadingController')
+#rospy.init_node('HeadingController')
 controller = HeadingController()
-print("Heading controller node running")
 sender = SetHeading()
+print("Heading controller node running")
 
 if __name__ == '__main__':
     rospy.spin()

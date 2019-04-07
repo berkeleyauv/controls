@@ -4,12 +4,12 @@ from __future__ import division, print_function
 
 import rospy
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Vector3
 from getIMUData import imu
 from PIDController import PID
-import sys
 from threading import Thread
+from setRCOutput import setMotor
+import sys
 
 '''
 A python script to practice receiving ROS messages
@@ -18,27 +18,27 @@ A python script to practice receiving ROS messages
 class VelocityController():
     ''' Subscribes to ROS messages
     '''
-    def __init__(self, axis):
-
+    def __init__(self):
         self.chatter_sub = rospy.Subscriber("/control/velocity", Vector3, self.chatter_callback)
         self.forward = PID(0.5, 0.0, 0.0)
         self.lateral = PID(0.5, 0.0, 0.0)
         self.thrust = PID(0.5, 0.0, 0.0)
+        self.thread = None
 
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
         '''
         if self.thread:
-            self.thread.stop()
+            self.thread.end()
         self.forward.setSetpoint(msg.x)
         self.thrust.setSetpoint(msg.y)
         self.lateral.setSetpoint(msg.z)
-        self.thread = PIDThread()
-        self.thread.start(forward, lateral, thrust)
+        self.thread = self.PIDThread()
+        self.thread.start(self.forward, self.lateral, self.thrust)
 
     def stop(self):
-        if self.thread:
-            self.thread.stop()
+        if self.thread: 
+            self.thread.end()
 
     class PIDThread(Thread):
 
@@ -51,18 +51,18 @@ class VelocityController():
             self.imu = imu
             Thread.start(self)
         
-        def stop(self):
+        def end(self):
             self.stop = True
 
         def run(self):
             self.forward.reset()
             self.lateral.reset()
             self.thrust.reset()
-            start = time.time()
+            start = rospy.get_time()
             while not self.stop:
-                x = self.forward.pidLoop(self.imu.velX[-1], time.time()-start)
-                y = self.thrust.pidLoop(self.imu.velY[-1], time.time()-start)
-                z = self.lateral.pidLoop(self.imu.velZ[-1]. time.time()-start)
+                x = self.forward.pidLoop(self.imu.velX[-1], rospy.get_time()-start)
+                y = self.thrust.pidLoop(self.imu.velY[-1], rospy.get_time()-start)
+                z = self.lateral.pidLoop(self.imu.velZ[-1], rospy.get_time()-start)
                 msg = [1500]*8
                 msg[2] += y
                 msg[4] += x
@@ -76,7 +76,7 @@ class SetVelocity():
     def __init__(self, chat_frequency=1.0):
 
         # publishing objects
-        self.chatter_pub = rospy.Publisher("/control/velocity", Vector3, queue_size=1)
+        self.chatter_pub = rospy.Publisher("/control/velocity", Vector3, queue_size=10)
         self.chat_frequency = rospy.Rate(chat_frequency)
 
     def send(self, msg):
@@ -89,10 +89,10 @@ class SetVelocity():
         msg = Vector3(*msg)
         self.chatter_pub.publish(msg)
 
-rospy.init_node('VelocityController')
+#rospy.init_node('VelocityController')
 velControl = VelocityController()
-print("Velocity controller node running")
 sender = SetVelocity()
+print("Velocity controller node running")
 
 if __name__ == '__main__':
     '''

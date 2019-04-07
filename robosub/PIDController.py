@@ -22,12 +22,12 @@ class PID:
     def pidLoop(self, curVal, curTime):
         error = self.setpoint - curVal
         p_term = self.p*error
-        d_term = self.d*(error - prevError)/(curTime - prevTime)
-        integral = self.prevIntegral + error*(curTime-prevTime)
+        d_term = self.d*(error - self.prevError)/(curTime - self.prevTime)
+        integral = self.prevIntegral + error*(curTime - self.prevTime)
         self.prevError = error
         self.prevTime = curTime
         self.prevIntegral = integral
-        return P_term + self.i*integral + d_term
+        return p_term + self.i*integral + d_term
 
     def onTarget(self, curVal):
         return abs(self.setpoint - curVal) < self.PID_THRESH

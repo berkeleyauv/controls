@@ -23,9 +23,9 @@ class YawListener():
         ''' Function to be run everytime a message is received on chatter topic
         '''
         self.yaw = msg.data
-        print("Current yaw:", self.yaw)
+        #print("Current yaw:", self.yaw)
 
-rospy.init_node('yaw_listener')
+#rospy.init_node('yaw_listener')
 yawl = YawListener()
 print("Yaw listener node running")
 
