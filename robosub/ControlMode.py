@@ -4,13 +4,10 @@ from __future__ import division, print_function
 
 import rospy
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist
-from mavros_msgs.srv import CommandBool
-from mavros_msgs.msg import OverrideRCIn
-from sensor_msgs.msg import Imu
+from mavros_msgs.srv import CommandBool, SetMode
 import HeadingController
 import VelocityController
-import PositionController
+#import PositionController
 import setRCOutput
 
 
@@ -26,30 +23,40 @@ class ControlMode():
         # publishing objects
         self.chatter_sub = rospy.Subscriber("/control/mode", String, self.chatter_callback)
         self.arming = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
-        self.mode = 'output'
+        self.mode = rospy.ServiceProxy('/mavros/set_mode', SetMode)
+        self.controlMode = 'output'
+        self.out = None
 
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
         '''
-        if self.mode == msg.data:
+        if self.controlMode == msg.data:
             return
-        self.mode = msg.data
-        self.out.stop()
-        print("Switching to mode: {}".format(self.mode))
-        if self.mode == 'output':
+        self.controlMode = msg.data
+        if self.out:
+            self.out.stop()
+        print("Switching to mode: {}".format(self.controlMode))
+        if self.controlMode == 'output':
+            self.arming(True)
+            self.mode(0, "MANUAL")
             self.out = setRCOutput.setMotor
-            zero = [1500]*8
-        elif self.mode == 'velocity':
+            msg = [1500]*8
+        elif self.controlMode == 'velocity':
+            self.arming(True)
+            self.mode(0, "MANUAL")
             self.out = VelocityController.sender
             msg = (0.0,0.0,0.0)
-        elif self.mode == 'position':
-            self.out = PositionController.sender
-            msg = (0.0,0.0,0.0)
-        elif self.mode == 'heading':
+        # elif self.mode == 'position':
+        #     self.out = PositionController.sender
+        #     msg = (0.0,0.0,0.0)
+        elif self.controlMode == 'heading':
+            self.arming(True)
+            self.mode(0, "MANUAL")
             self.out = HeadingController.sender
             msg = 0.0
-        elif self.mode == 'disarm':
+        elif self.controlMode == 'disarm':
             self.arming(False)
+            self.out = None
             return
         else:
             return
@@ -61,7 +68,7 @@ class SetControlMode():
     def __init__(self, chat_frequency=1.0):
 
         # publishing objects
-        self.chatter_pub = rospy.Publisher("/control/mode", String, queue_size=1)
+        self.chatter_pub = rospy.Publisher("/control/mode", String, queue_size=10)
         # rate of publishing
         self.chat_frequency = rospy.Rate(chat_frequency)
 
@@ -73,11 +80,10 @@ class SetControlMode():
         self.chatter_pub.publish(msg)
         
       
-rospy.init_node('ControlMode')
+#rospy.init_node('ControlMode')
 mode = ControlMode()
-print("ControlMode listener node running")
 sender = SetControlMode()
-print("ControlMode publisher running")
+print("ControlMode running")
 
 if __name__ == '__main__':
     '''
