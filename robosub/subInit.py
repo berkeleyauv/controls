@@ -4,7 +4,7 @@ from __future__ import print_function
 import rospy
 
 rospy.init_node("SubControls")
-#rospy.sleep(0.5)
+rospy.sleep(0.5)
 
 import ControlMode
 from getIMUData import imu
@@ -26,19 +26,17 @@ class Main:
         self.out.send(zero)
 
     def run(self, option, output):
+        code = self.mode.send(option)
         if option == 'output':
-            self.mode.send(option)
             self.out = setRCOutput.setMotor
             msg = output + [1500, 1500]
         elif option == 'velocity':
-            self.mode.send(option)
             self.out = VelocityController.sender
             msg = output
         # elif mode == 'position':
         #     self.out = PositionController.sender
         #     msg = output
         elif option == 'heading':
-            self.mode.send(option)
             self.out = HeadingController.sender
             msg = output[0]
         elif option == 'imu':
@@ -49,9 +47,6 @@ class Main:
             return
         elif option == 'yaw':
             print("Current yaw:", yawl.yaw)
-            return
-        elif option == 'disarm':
-            self.mode.send(option)
             return
         elif option == 'stop':
             self.mode.send('output')

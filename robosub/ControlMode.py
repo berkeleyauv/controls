@@ -24,7 +24,9 @@ class ControlMode():
         self.chatter_sub = rospy.Subscriber("/control/mode", String, self.chatter_callback)
         self.arming = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
         self.mode = rospy.ServiceProxy('/mavros/set_mode', SetMode)
-        self.controlMode = 'output'
+        self.controlMode = 'disarm'
+        self.arming(False)
+        self.mode(0, "MANUAL")
         self.out = None
 
     def chatter_callback(self, msg):
@@ -33,17 +35,15 @@ class ControlMode():
         if self.controlMode == msg.data:
             return
         self.controlMode = msg.data
-        if self.out:
-            self.out.stop()
+        # if self.out:
+        #     self.out.stop()
         print("Switching to mode: {}".format(self.controlMode))
         if self.controlMode == 'output':
             self.arming(True)
-            self.mode(0, "MANUAL")
             self.out = setRCOutput.setMotor
             msg = [1500]*8
         elif self.controlMode == 'velocity':
             self.arming(True)
-            self.mode(0, "MANUAL")
             self.out = VelocityController.sender
             msg = (0.0,0.0,0.0)
         # elif self.mode == 'position':
@@ -51,15 +51,31 @@ class ControlMode():
         #     msg = (0.0,0.0,0.0)
         elif self.controlMode == 'heading':
             self.arming(True)
-            self.mode(0, "MANUAL")
             self.out = HeadingController.sender
             msg = 0.0
         elif self.controlMode == 'disarm':
             self.arming(False)
             self.out = None
             return
-        else:
+        elif self.controlMode == 'arm':
+            self.arming(True)
+            self.out = None
             return
+        elif self.controlMode == 'stabilize':
+            self.mode(0, "STABILIZE")
+            self.out = None
+            return
+        elif self.controlMode == 'depth':
+            self.mode(0, "ALT_HOLD")
+            self.out = None
+            return
+        elif self.controlMode == 'manual':
+            self.mode(0, "MANUAL")
+            self.out = None
+            return
+        else:
+            print("Invalid control mode:", self.controlMode)
+            return -1
         self.out.send(msg)  
 
 class SetControlMode():
