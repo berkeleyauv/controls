@@ -88,6 +88,9 @@ class SetVelocity():
         '''
         msg = Vector3(*msg)
         self.chatter_pub.publish(msg)
+        
+    def stop(self):
+        velControl.stop()
 
 #rospy.init_node('VelocityController')
 velControl = VelocityController()
