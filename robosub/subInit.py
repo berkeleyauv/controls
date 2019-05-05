@@ -22,17 +22,17 @@ class Main:
         self.mode = ControlMode.sender
         self.out = setRCOutput.setMotor
         zero = [1500]*8
-        self.mode.send('output')
+        self.mode.send('power')
         self.out.send(zero)
 
     def run(self, option, output):
         code = self.mode.send(option)
-        if option == 'output':
+        if option == 'power':
             self.out = setRCOutput.setMotor
-            msg = output + [1500, 1500]
+            msg = [int(i) for i in output] + [1500, 1500]
         elif option == 'velocity':
             self.out = VelocityController.sender
-            msg = output
+            msg = output[:3]
         # elif mode == 'position':
         #     self.out = PositionController.sender
         #     msg = output
@@ -53,7 +53,8 @@ class Main:
             self.out = setRCOutput.setMotor
             msg = [1500]*8
         else:
-            print("Invalid option:", option)
+            # if code:
+            #     print("Invalid option:", option)
             return
         self.out.send(msg)
         
@@ -63,18 +64,21 @@ if __name__ == '__main__':
         m = Main()
         print()
         print("Instructions:")
-        print("Options are: output, velocity, heading, imu, yaw, disarm, stop")
-        print("Outputs are needed for: output, velocity, heading and need to be in space delimited format")
+        print("Options are: power, velocity, heading, imu, yaw, arm, disarm, stop, stabilize, depth, manual")
+        print("Outputs are needed for: power, velocity, and heading need to be in space delimited format")
         print("Keyboard interrupt(Ctrl+C) to exit")
         while not rospy.is_shutdown():
-            inputString = raw_input("Provide [option] [output] \n").split()
-            if inputString:
-                option = inputString[0]
-                output = [int(item) for item in inputString[1:]]
-                m.run(option, output)
-            rospy.sleep(0.1)
+            try:
+                inputString = raw_input("Provide [option] [output] \n").split()
+                if inputString:
+                    option = inputString[0]
+                    output = [float(item) for item in inputString[1:]]
+                    m.run(option, output)
+                rospy.sleep(0.1)
+            except Exception:
+                traceback.print_exc()   
     except KeyboardInterrupt:
         print("Sub shutting down...")
-    except Exception as e:
-        traceback.print_exc()
+        self.out = setRCOutput.setMotor
+        self.out.stop()
     sys.exit(0)

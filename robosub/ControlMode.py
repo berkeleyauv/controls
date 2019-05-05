@@ -35,10 +35,10 @@ class ControlMode():
         if self.controlMode == msg.data:
             return
         self.controlMode = msg.data
-        # if self.out:
-        #     self.out.stop()
+        if self.out:
+            self.out.stop()
         print("Switching to mode: {}".format(self.controlMode))
-        if self.controlMode == 'output':
+        if self.controlMode == 'power':
             self.arming(True)
             self.out = setRCOutput.setMotor
             msg = [1500]*8
@@ -74,8 +74,8 @@ class ControlMode():
             self.out = None
             return
         else:
-            print("Invalid control mode:", self.controlMode)
-            return -1
+            #print("Invalid control mode:", self.controlMode)
+            return
         self.out.send(msg)  
 
 class SetControlMode():

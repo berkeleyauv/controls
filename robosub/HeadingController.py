@@ -18,7 +18,7 @@ class HeadingController():
     '''
     def __init__(self):
         self.chatter_sub = rospy.Subscriber("/control/heading", Float64, self.chatter_callback)
-        self.pid = PID(0.5, 0.0, 0.0)
+        self.pid = PID(0.2, 0.0, 0.0)
         self.yaw = lambda: yawl.yaw
         self.rate = rospy.Rate(50)
         self.thread = None
@@ -27,14 +27,10 @@ class HeadingController():
         ''' Function to be run everytime a message is received on chatter topic
         '''
         if self.thread:
-            self.thread.stop()
+            self.thread.end()
         self.pid.setSetpoint(msg.data)
         self.thread = self.PIDThread()
         self.thread.start(self.pid, self.yaw)
-
-    def stop(self):
-        if self.thread:
-            self.thread.stop()
     
     class PIDThread(Thread):
 
@@ -45,16 +41,18 @@ class HeadingController():
             self.yaw = yaw
             Thread.start(self)
         
-        def stop(self):
+        def end(self):
             self.stop = True
 
         def run(self):
             self.pid.reset()
-            start = time.time()
+            start = rospy.get_time()
             while not self.stop:
-                output = self.pid.pidLoop(self.yaw(), time.time()-start)
+                output = self.pid.pidLoop(self.yaw(), rospy.get_time()-start)
                 msg = [1500]*8
                 msg[3] += output
+                print("Yaw:",self.yaw())
+                print("PID output:", output)
                 setMotor.send(msg)
                 self.rate.sleep()
 
@@ -74,6 +72,10 @@ class SetHeading():
         '''
         msg = Float64(msg)
         self.chatter_pub.publish(msg)
+
+    def stop(self):
+        if controller.thread:
+            controller.thread.end()
 
 #rospy.init_node('HeadingController')
 controller = HeadingController()

@@ -25,10 +25,15 @@ class IMUListener():
         self.velX = []
         self.velY = []
         self.velZ = []
+        self.first = True
 
     def chatter_callback(self, msg):
         ''' Function to be run everytime a message is received on chatter topic
         '''
+        if self.first:
+            self.first = False
+            
+
         self.accelX.append((rospy.get_time()-self.start, msg.linear_acceleration.x))
         self.accelY.append((rospy.get_time()-self.start, msg.linear_acceleration.y))
         self.accelZ.append((rospy.get_time()-self.start, msg.linear_acceleration.z))
