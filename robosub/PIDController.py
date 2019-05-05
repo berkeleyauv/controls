@@ -21,6 +21,8 @@ class PID:
 
     def pidLoop(self, curVal, curTime):
         error = self.setpoint - curVal
+        print("setpoint:", self.setpoint)
+        print("error:", error)
         p_term = self.p*error
         d_term = self.d*(error - self.prevError)/(curTime - self.prevTime)
         integral = self.prevIntegral + error*(curTime - self.prevTime)

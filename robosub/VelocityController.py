@@ -35,10 +35,7 @@ class VelocityController():
         self.lateral.setSetpoint(msg.z)
         self.thread = self.PIDThread()
         self.thread.start(self.forward, self.lateral, self.thrust)
-
-    def stop(self):
-        if self.thread: 
-            self.thread.end()
+        
 
     class PIDThread(Thread):
 
@@ -90,7 +87,8 @@ class SetVelocity():
         self.chatter_pub.publish(msg)
         
     def stop(self):
-        velControl.stop()
+        if velControl.thread: 
+            velControl.thread.end()
 
 #rospy.init_node('VelocityController')
 velControl = VelocityController()

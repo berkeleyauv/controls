@@ -52,6 +52,9 @@ class SetOutput():
         #self.chat_frequency.sleep()
 #        self.chatter_pub.publish(msg)
 
+    def stop(self):
+        self.send([1500]*8)
+
 
 
 if __name__ == '__main__':
