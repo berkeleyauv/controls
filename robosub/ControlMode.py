@@ -15,6 +15,7 @@ import setRCOutput
 A python script to practice receiving ROS messages
 '''
 
+
 class ControlMode():
     ''' Subscribes to ROS messages
     '''
@@ -41,7 +42,7 @@ class ControlMode():
         if self.controlMode == 'power':
             self.arming(True)
             self.out = setRCOutput.setMotor
-            msg = [1500]*8
+           # msg = [1500]*8
         elif self.controlMode == 'velocity':
             self.arming(True)
             self.out = VelocityController.sender
@@ -76,7 +77,7 @@ class ControlMode():
         else:
             #print("Invalid control mode:", self.controlMode)
             return
-        self.out.send(msg)  
+        #self.out.send(msg)  
 
 class SetControlMode():
     ''' Generates and publishes ROS messages
@@ -93,6 +94,7 @@ class SetControlMode():
             String: 
                 string data
         '''
+        msg = String(msg)
         self.chatter_pub.publish(msg)
         
       

@@ -48,6 +48,7 @@ class SetOutput():
         #     self.chat_frequency.sleep()
         msg = OverrideRCIn(msg)
         #while not rospy.is_shutdown():
+        print(msg)
         self.chatter_pub.publish(msg)
         #self.chat_frequency.sleep()
 #        self.chatter_pub.publish(msg)
