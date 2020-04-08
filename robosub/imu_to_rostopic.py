@@ -13,7 +13,7 @@ def imu():
   while not rospy.is_shutdown():
     output = str(ser.readline())
     rospy.loginfo(output)
-    pub.publish(hello_str)
+    pub.publish(output)
     rate.sleep()
 
 if __name__ == '__main__':
