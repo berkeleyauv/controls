@@ -11,9 +11,6 @@ A python script to reset motor output to zero.
 '''
 
 if __name__ == '__main__':
-    '''
-    This is where the code starts running
-    '''
     #mode = SetControlMode()
     #ControlMode.sender.send('output')
     rospy.init_node('SetZero')

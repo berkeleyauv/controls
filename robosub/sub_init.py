@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import time
 
+# Code to handle automatic starting on bootup for competition. Needs refactoring into SystemD
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'comp':
         import os
@@ -17,13 +18,13 @@ import rospy
 rospy.init_node("SubControls")
 rospy.sleep(0.5)
 
-import ControlMode
-from getIMUData import imu, writeVideo, releaseVideo
-from getYaw import yawl
-import setRCOutput
-import VelocityController
-import HeadingController
-#import PositionController
+import robosub.ControlMode
+from robosub.utils import VideoSaver, TelemetrySaver
+from robosub.IMUListener import imu
+from robosub.YawListener import yaw
+import robosub.MotorOutput
+from robosub.controllers import *
+
 import traceback
 import sys
 import time
@@ -32,7 +33,6 @@ import cv2
 
 MODES = ['power', 'velocity', 'heading', 'disarm', 'arm', 'stabilize', 'manual', 'depth']
 
-
 START_DELAY = 10
 RUN_TIME = 3
 
@@ -40,65 +40,67 @@ RUN_TIME = 3
 class Main:
 
     def __init__(self):
-        self.mode = ControlMode.sender
-        self.out = setRCOutput.setMotor
+        self.mode = ControlMode.mode
+        self.out = MotorOutput.setMotor
         zero = [1500]*8
         self.mode.send('power')
         self.out.send(zero)
 
-    def run(self, option, output):
+    def run(self, option, input):
         if option in MODES:
             code = self.mode.send(option)
         if option in ['power', 'stabilize', 'depth']:
-            self.out = setRCOutput.setMotor
-            msg = [int(i) for i in output] + [1500, 1500]
+            self.out = MotorOutput.setMotor
+            msg = [int(i) for i in input] + [1500, 1500]
         elif option == 'vision':            
            return
         elif option == 'velocity':
             self.out = VelocityController.sender
-            msg = output[:3]
+            msg = input[:3]
         # elif mode == 'position':
         #     self.out = PositionController.sender
         #     msg = output
         elif option == 'heading':
             self.out = HeadingController.sender
-            msg = output[0]
+            msg = input[0]
         elif option == 'imu':
             print("Linear accel: {}".format(imu.linear_acceleration))
             print("Angular vel: {}".format(imu.angular_velocity))
             print("Orientation: {}".format(imu.orientation))
             print("Linear vel: {}".format((imu.velX[-1], imu.velY[-1], imu.velZ[-1])))
             return
+        elif option == 'razor':
+            return
         elif option == 'yaw':
-            print("Current yaw:", yawl.yaw)
+            print("Current yaw:", yaw.yaw)
             return
         elif option == 'stop':
             self.mode.send('power')
-            self.out = setRCOutput.setMotor
+            self.out = MotorOutput.setMotor
             msg = [1500]*8
         else:
-            # if code:
-            #     print("Invalid option:", option)
+            print("Invalid option:", option)
             return
         self.out.send(msg)
+
 
 def processInput():
     try:
         m = Main()
         print()
         print("Instructions:")
-        print("Options are: power, velocity, heading, imu, yaw, arm, disarm, stop, stabilize, depth, manual")
+        print("Options are: power, velocity, heading, vision, imu, yaw, razor, arm, disarm, stop, stabilize, depth, manual")
         print("Outputs are needed for: power, velocity, and heading. Need to be in space delimited format")
         print("Keyboard interrupt(Ctrl+C) to exit")
         while not rospy.is_shutdown():
             try:
-                inputString = raw_input("Provide [option] [output] \n").split()
+                inputString = raw_input("Provide [option] [input] \n").split()
                 if inputString == 'exit':
                     raise KeyboardInterrupt()
                 if inputString:
                     option = inputString[0]
-                    output = [float(item) for item in inputString[1:]]
-                    m.run(option, output)
+                    input = [float(item) for item in inputString[1:]]
+                    m.run(option, input)
                 rospy.sleep(0.1)
             except Exception as e:
                 print("Error occurred: " + str(e))
@@ -106,14 +108,15 @@ def processInput():
     except KeyboardInterrupt:
         print("Sub shutting down...")
     finally:
-        m.out = setRCOutput.setMotor
+        m.out = MotorOutput.setMotor
         m.out.stop()
         m.mode.send('disarm')
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         processInput()
-    elif sys.argv[1] == 'auto' or sys.argv[1] == 'comp':
+    elif sys.argv[1] == 'auto' or sys.argv[1] == 'comp': # TODO: Rewrite the autonomou competition code
         try:
             start_time = time.time()
             # while ((time.time() - start_time) < START_DELAY):
