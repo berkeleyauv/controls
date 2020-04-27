@@ -70,7 +70,13 @@ class Main:
             print("Linear vel: {}".format((imu.velX[-1], imu.velY[-1], imu.velZ[-1])))
             return
         elif option == 'razor':
-            print("Razor IMU reading: {}".format(razor.reading))
+            # print("Razor IMU reading: {}".format(razor.reading))
+            print("Razor accel: {}".format(razor.accel))
+            print("Razor gyro: {}".format(razor.gyro))
+            print("Razor mag: {}".format(razor.mag))
+            print("Razor quaternion: {}".format(razor.quat))
+            print("Razor angles: {}".format(razor.angle))
+            print("Razor heading: {}".format(razor.heading))
             return
         elif option == 'yaw':
             print("Current yaw:", yaw.yaw)
