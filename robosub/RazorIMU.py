@@ -28,9 +28,11 @@ class RazorIMU(Thread):
             self.heading = vals[17]
             self.reading = output
             self.pub.publish(output)
-            rospy.loginfo(output)
+            #rospy.loginfo(output)
 
-rospy.init_node('razor_imu')
+if __name__ == '__main__':
+    rospy.init_node('razor_imu')
+
 razor = RazorIMU()
 razor.daemon = True
 razor.start()
