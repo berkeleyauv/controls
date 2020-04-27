@@ -17,6 +17,7 @@ class RazorIMU(Thread):
     def run(self):
         output = str(self.serial.readline())
         rospy.loginfo(output)
+        self.reading = output
         self.pub.publish(output)
 
 

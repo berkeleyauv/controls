@@ -22,6 +22,7 @@ from robosub import ControlMode, MotorOutput
 from robosub.utils import VideoSaver, TelemetrySaver
 from robosub.IMUListener import imu
 from robosub.YawListener import yaw
+from robosub.RazorIMU import razor
 from robosub.controllers import *
 
 import traceback
@@ -69,6 +70,7 @@ class Main:
             print("Linear vel: {}".format((imu.velX[-1], imu.velY[-1], imu.velZ[-1])))
             return
         elif option == 'razor':
+            print("Razor IMU reading: {}".format(razor.reading))
             return
         elif option == 'yaw':
             print("Current yaw:", yaw.yaw)
