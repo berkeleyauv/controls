@@ -1,4 +1,6 @@
+
 class PID:
+    """Class that handles PID looping and outputs."""
 
     def __init__(self, p, i , d, thresh=1.0, setpoint=0.0):
         self.p = p
@@ -19,7 +21,7 @@ class PID:
     def setSetpoint(self, setpoint):
         self.setpoint = setpoint
 
-    def pidLoop(self, curVal, curTime):
+    def calculate(self, curVal, curTime):
         error = self.setpoint - curVal
         print("setpoint:", self.setpoint)
         print("error:", error)

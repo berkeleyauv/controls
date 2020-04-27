@@ -6,8 +6,8 @@ import rospy
 from std_msgs.msg import String, Float64
 from PIDController import PID
 from threading import Thread, Lock
-from getYaw import yawl
-from setRCOutput import setMotor
+from robosub.getYaw import yawl
+from robosub.setRCOutput import setMotor
 
 '''
 A python script to practice receiving ROS messages

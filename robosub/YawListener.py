@@ -26,7 +26,7 @@ class YawListener():
         #print("Current yaw:", self.yaw)
 
 #rospy.init_node('yaw_listener')
-yawl = YawListener()
+yaw = YawListener()
 print("Yaw listener node running")
 
 if __name__ == '__main__':
