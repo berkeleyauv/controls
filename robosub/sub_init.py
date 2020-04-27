@@ -18,11 +18,10 @@ import rospy
 rospy.init_node("SubControls")
 rospy.sleep(0.5)
 
-import robosub.ControlMode
+from robosub import ControlMode, MotorOutput
 from robosub.utils import VideoSaver, TelemetrySaver
 from robosub.IMUListener import imu
 from robosub.YawListener import yaw
-import robosub.MotorOutput
 from robosub.controllers import *
 
 import traceback
@@ -108,8 +107,7 @@ def processInput():
     except KeyboardInterrupt:
         print("Sub shutting down...")
     finally:
-        m.out = MotorOutput.setMotor
-        m.out.stop()
+        MotorOutput.setMotor.stop()
         m.mode.send('disarm')
 
 
@@ -117,6 +115,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         processInput()
     elif sys.argv[1] == 'auto' or sys.argv[1] == 'comp': # TODO: Rewrite the autonomou competition code
+        video = VideoSaver()
         try:
             start_time = time.time()
             # while ((time.time() - start_time) < START_DELAY):
@@ -128,21 +127,21 @@ if __name__ == '__main__':
             start_time = time.time()
             while ((time.time() - start_time) < RUN_TIME*2.5):
                 main.out.send([1500,1500,1500,1500,1600,1500,1500,1500])
-                writeVideo()
+                video.writeVideo()
             start_time = time.time()
             while ((time.time() - start_time) < RUN_TIME):
                 main.out.send([1500,1500,1500,1500,1500,1600,1500,1500])
-                writeVideo()
+                video.writeVideo()
             start_time = time.time()
             while ((time.time() - start_time) < RUN_TIME*2.5):
                 main.out.send([1500,1500,1500,1500,1400,1500,1500,1500])
-                writeVideo()
+                video.writeVideo()
             while ((time.time() - start_time) < RUN_TIME):
                 main.out.send([1500,1500,1500,1500,1500,1400,1500,1500])
-                writeVideo()
+                video.writeVideo()
             # Release everything if job is finished
             main.out.send([1500,1500,1500,1500,1500,1500,1500,1500])
         except KeyboardInterrupt as i:
             pass
         finally:
-            releaseVideo()
+            video.releaseVideo()

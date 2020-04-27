@@ -88,7 +88,7 @@ class SetVelocity():
             velControl.thread.end()
 
 #rospy.init_node('VelocityController')
-velControl = VelocityController()
+visionControl = VisionController()
 sender = SetVelocity()
 print("Velocity controller node running")
 

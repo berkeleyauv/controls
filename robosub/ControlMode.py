@@ -6,8 +6,8 @@ import rospy
 from std_msgs.msg import String
 from mavros_msgs.srv import CommandBool, SetMode
 
+from robosub import MotorOutput
 from robosub.controllers import *
-import robosub.MotorOutput
 
 
 class ControlMode:
@@ -89,5 +89,5 @@ if __name__ == '__main__':
     '''
     rospy.init_node('ControlMode')
     msg = String('output')
-    sender.send(msg)
+    mode.send(msg)
     rospy.spin()

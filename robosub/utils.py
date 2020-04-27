@@ -1,4 +1,5 @@
 import cv2
+import os
 from datetime import datetime
 
 from robosub.IMUListener import imu
@@ -7,14 +8,14 @@ from robosub.YawListener import yaw
 
 class VideoSaver:
 
-    def __init__(self):
+    def __init__(self, video_dir):
         self.zed = cv2.VideoCapture(0)
         self.webcam = cv2.VideoCapture(1)
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.zed_video = cv2.VideoWriter('raw_video/zed_video_' + str(datetime.now()) + '.avi', \
+        self.zed_video = cv2.VideoWriter(os.path.join(video_dir, 'zed_video_' + str(datetime.now()) + '.avi'), \
                         fourcc, 30, (int(self.zed.get(3)), int(self.zed.get(4))))
-        self.webcam_video = cv2.VideoWriter('raw_video/webcam_video_' + str(datetime.now()) + '.avi', \
+        self.webcam_video = cv2.VideoWriter(os.path.join(video_dir, 'webcam_video_' + str(datetime.now()) + '.avi'), \
                         fourcc, 30, (int(self.webcam.get(3)), int(self.webcam.get(4))))
 
     def writeVideo(self):
@@ -34,10 +35,9 @@ class VideoSaver:
 
 class TelemetrySaver:
 
-    def __init__(self, file=None):
-        self.file = file
-        if file is None:
-            self.file = 'telemetry_' + str(datetime.now()) + '.csv'
+    def __init__(self, file_dir):
+        self.file = os.path.join(file_dir, 'telemetry_' + str(datetime.now()) + '.csv')
+        self.write_header()
 
     def write_header(self):
         telemetry_header = 'Time,Linear Acceleration X,Linear Acceleration Y,Linear Acceleration Z,Angular Velocity X,Angular Velocity Y,Angular Velocity Z,Orientation W,Orientation X,Orientation Y,Orientation Z,Yaw\n'
