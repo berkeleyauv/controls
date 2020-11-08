@@ -1,22 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from __future__ import print_function
 import sys
 import time
 
-# Code to handle automatic starting on bootup for competition. Needs refactoring into SystemD
-if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == 'comp':
-        import os
-        os.spawnl(os.P_NOWAIT, 'roscore')
-        time.sleep(3)
-        os.spawnl(os.P_NOWAIT, 'roslaunch mavros apm.launch fcu_url:=/dev/ttyACM0:115200 gcs_url:=udp://@192.168.137.1:14550')
-        time.sleep(3)
+import rclpy
 
-import rospy
-
-rospy.init_node("SubControls")
-rospy.sleep(0.5)
+rclpy.init(sys.argv)
 
 from controls import ControlMode, MotorOutput
 from controls.utils import VideoSaver, TelemetrySaver

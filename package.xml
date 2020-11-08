@@ -9,15 +9,13 @@
 
   <buildtool_depend>ament_python</buildtool_depend>
 
-  <build_depend>rospy</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>roslaunch</build_depend>
+  <build_depend>rclpy</build_depend>
   
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>rclpy</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>razor_imu_9dof</exec_depend>
+  <exec_depend>sub_interfaces</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

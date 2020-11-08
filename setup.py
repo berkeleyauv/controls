@@ -1,22 +1,28 @@
-import setuptools
+from setuptools import setup
+import glob
 
-with open("README.md", "r") as f:
-    long_description = f.read()
+package_name = 'controls'
 
-print(setuptools.find_packages())
-
-setuptools.setup(
-    name="controls", 
-    version="0.0.1",
-    author="Underwater Robotics at Berkeley",
-    description="Code for the controls of our autonomous submarine",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 2",
-        "Operating System :: OS Independent",
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name, glob.glob('launch/*.launch*'))
     ],
-    python_requires='>=2.7',
-    requires=['rospy']
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='ashwin',
+    maintainer_email='ashwinvangipuram@gmail.com',
+    description='TODO: Package description',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'init = controls.sub_init:processInput'
+        ],
+    },
 )

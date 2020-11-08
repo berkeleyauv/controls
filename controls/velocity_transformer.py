@@ -1,16 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import rospy
+import sys
+import rclpy
 from geometry_msgs.msg import Twist
-from controls.msg import SubThrusts
+from sub_interfaces.msg import SubThrusts
 # from uuv_gazebo_ros_plugins_msgs.msg import FloatStamped
 
 
-class VelocityTransformer:
+class VelocityTransformer(rclpy.node.Node):
 
     def __init__(self):
-        self.sub = rospy.Subscriber('/sub/cmd_vel', Twist, self.vel_callback)
-        self.pub = rospy.Publisher('/sub/thrusts', SubThrusts, queue_size=10)
+        self.sub = self.create_subscription('/sub/cmd_vel', Twist, self.vel_callback)
+        self.pub = self.create_publisher('/sub/thrusts', SubThrusts, 10)
         # self.thrusters = [rospy.Publisher(f'/sub/thrusters/{i}/input', FloatStamped, queue_size=10) for i in ]
 
     def vel_callback(self, twist):
@@ -39,7 +40,7 @@ class VelocityTransformer:
         """
 
         msg = SubThrusts()
-        msg.header.stamp = rospy.Time.now()
+        msg.header.stamp = self.get_clock().now().to_msg()
         msg.thrusts[0] = twist.linear.x + twist.linear.y - twist.angular.z
         msg.thrusts[1] = -twist.linear.x + twist.linear.y + twist.angular.z
         msg.thrusts[2] = -twist.linear.x + twist.linear.y - twist.angular.z
@@ -51,7 +52,7 @@ class VelocityTransformer:
         self.pub.publish(msg)
 
 if __name__ == "__main__":
-    rospy.init_node('velocity_transformer')
+    rclpy.init(sys.argv)
     vel_transform = VelocityTransformer()
-    while not rospy.is_shutdown():
-        rospy.spin()
+    rclpy.spin(vel_transform)
+    rclpy.shutdown(vel_transform)

@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from __future__ import division, print_function
+import sys
 
-import rospy
+import rclpy
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped, Twist
 from mavros_msgs.msg import ManualControl, OverrideRCIn
 
 
-class SetMotors():
+class SetMotors(rclpy.Node):
     ''' Generates and publishes ROS messages
     '''
     def __init__(self):
-        self.pub = rospy.Publisher("/sub/cmd_vel", Twist, queue_size=10)
+        self.pub = self.create_publisher("/sub/cmd_vel", Twist, 10)
 
     def send(self, msg):
         """
@@ -31,7 +31,8 @@ if __name__ == '__main__':
     '''
     This is where the code starts running
     '''
-    rospy.init_node('RC_override')
-    rospy.sleep(.5)
+    rclpy.init(sys.argv)
+    setMotor = SetMotors()
+    rclpy.spin(setMotor)
+    rclpy.shutdown()
 
-setMotor = SetMotors()
