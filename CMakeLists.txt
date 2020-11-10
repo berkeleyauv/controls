@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roslaunch
   razor_imu_9dof
+  teleop_twist_keyboard
 )
 
 roslaunch_add_file_check(launch)
