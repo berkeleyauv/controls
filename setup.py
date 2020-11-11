@@ -1,5 +1,6 @@
+import os
 from setuptools import setup
-import glob
+from glob import glob
 
 package_name = 'controls'
 
@@ -11,7 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name, glob.glob('launch/*.launch*'))
+        (os.path.join('share', package_name), glob('launch/*.launch.py'))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -22,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'init = controls.sub_init:processInput'
+            'init = controls.sub_init:processInput',
+            'velocity_transformer = controls.velocity_transformer:main',
         ],
     },
 )

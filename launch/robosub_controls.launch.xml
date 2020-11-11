@@ -1,6 +1,0 @@
-<launch>
-    <include file="$(find-pkg-share razor_imu_9dof)/launch/razor-pub.launch" />
-    <node name="sub_controls" pkg="controls" exec="sub_init.py" ns="sub" />
-    <node name="velocity_transform" pkg="controls" exec="velocity_transformer.py" ns="sub" />
-    <!-- <node name="pixhawk_interface" pkg="controls" type="pixhawk_interface.py" /> -->
-</launch>
