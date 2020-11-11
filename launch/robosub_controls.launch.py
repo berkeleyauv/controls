@@ -5,13 +5,13 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='controls',
-            node_namespace='sb',
+            node_namespace='sub',
             node_executable='velocity_transformer',
             node_name='velocity_transformer'
         ),
         Node(
             package='teleop_twist_keyboard',
-            node_namespace='sb',
+            node_namespace='sub',
             node_executable='teleop_twist_keyboard',
             output='screen',
             prefix='xterm -e',
