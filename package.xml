@@ -7,15 +7,12 @@
   <maintainer email="avangipuram@berkeley.edu">ashwin</maintainer>
   <license>TODO: License declaration</license>
 
-  <buildtool_depend>ament_python</buildtool_depend>
-
   <build_depend>rclpy</build_depend>
   <build_depend>teleop_twist_keyboard</build_depend>
 
   <exec_depend>rclpy</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>razor_imu_9dof</exec_depend>
   <exec_depend>sub_interfaces</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
 
