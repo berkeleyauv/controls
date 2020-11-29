@@ -2,10 +2,11 @@
 class PID:
     """Class that handles PID looping and outputs."""
 
-    def __init__(self, p, i , d, thresh=1.0, setpoint=0.0):
+    def __init__(self, p, i , d, sat, thresh=1.0, setpoint=0.0):
         self.p = p
         self.i = i
         self.d = d
+        self.sat = sat
         self.setpoint = setpoint
         self.prevIntegral = 0.0
         self.prevError = 0.0
@@ -31,7 +32,12 @@ class PID:
         self.prevError = error
         self.prevTime = curTime
         self.prevIntegral = integral
-        return p_term + self.i*integral + d_term
+
+        u = p_term + self.i*integral + d_term
+        if abs(u) > self.sat:
+            # used abs here instead of vector norm?
+            u = u*self.sat/abs(u)
+        return u
 
     def onTarget(self, curVal):
         return abs(self.setpoint - curVal) < self.PID_THRESH
