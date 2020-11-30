@@ -1,3 +1,4 @@
+import numpy as np
 
 class PID:
     """Class that handles PID looping and outputs."""
@@ -34,9 +35,8 @@ class PID:
         self.prevIntegral = integral
 
         u = p_term + self.i*integral + d_term
-        if abs(u) > self.sat:
-            # used abs here instead of vector norm?
-            u = u*self.sat/abs(u)
+        if np.linalg.norm(u) > self.sat:
+            u = u*self.sat/np.linalg.norm(u)
         return u
 
     def onTarget(self, curVal):
