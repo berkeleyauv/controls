@@ -37,6 +37,7 @@ class PID:
         u = p_term + self.i*integral + d_term
         if np.linalg.norm(u) > self.sat:
             u = u*self.sat/np.linalg.norm(u)
+            self.prevIntegral = 0.0
         return u
 
     def onTarget(self, curVal):

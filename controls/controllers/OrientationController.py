@@ -78,7 +78,7 @@ class OrientationController(Node):
         self.create_pid(self.config)
 
         self.get_logger().warn("Parameters dynamically changed...")
-        return SetParametersResult(successful=True)
+        return SetParametersResult(successful=True) #msg type
 
     #==============================================================================
     def create_pid(self, config):
