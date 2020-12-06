@@ -9,6 +9,9 @@ from controls.controllers.PIDController import PID
 def simple_system(val, u):
     return val + u
 
+def quadratic_system(val, u):
+    return val**2 + u
+
 def cubic_system(val, u):
     return (val + u)**3
 
@@ -16,7 +19,8 @@ def exponential_sys(val, u):
     return 2**(val - u)
 
 def test(system, p, i, d, sat):
-    pid = PID(p, i, d, 15, thresh=.1, setpoint=100)
+    goal = 100
+    pid = PID(p, i, d, 15, thresh=.1, setpoint=goal)
 
     val = 5
     t = 1
@@ -28,11 +32,13 @@ def test(system, p, i, d, sat):
         if np.isnan(val):
             print("Value overflowed")
             plt.plot(val_arr)
+            plt.plot(np.full(len(val_arr), goal))
             plt.show()
             return
         if t > big_number:
             print("PID did not converge to setpoint in time")
             plt.plot(val_arr)
+            plt.plot(np.full(len(val_arr), goal))
             plt.show()
             return
 
@@ -45,12 +51,13 @@ def test(system, p, i, d, sat):
     print("yay PID worked")
     print(f"error: {abs(pid.setpoint - val)}")
     plt.plot(val_arr)
+    plt.plot(np.full(len(val_arr), goal))
     plt.show()
 
 if __name__ == "__main__":
     # test(simple_system, 1.5, 0, 0, 15)
-    test(cubic_system, 1000, 0, 0, 10)
-    # test(exponential_sys)
+    test(quadratic_system, -100, 0, 0, 1000)
+    # test(cubic_system, -1, 0, 0, 15)
+    # test(exponential_sys, 0, 0, 0, 15)
     
-# TODO: write tests for complicated systems
-# TODO: plot state vs. time with matplotlib
+# TODO: tune PID gains for cubic and exponential system
