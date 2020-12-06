@@ -15,7 +15,7 @@ def cubic_system(val, u):
 def exponential_sys(val, u):
     return 2**(val - u)
 
-def test(system, p, i, d):
+def test(system, p, i, d, sat):
     pid = PID(p, i, d, 15, thresh=.1, setpoint=100)
 
     val = 5
@@ -25,8 +25,15 @@ def test(system, p, i, d):
     val_arr = [val]
 
     while not pid.onTarget(val):
+        if np.isnan(val):
+            print("Value overflowed")
+            plt.plot(val_arr)
+            plt.show()
+            return
         if t > big_number:
             print("PID did not converge to setpoint in time")
+            plt.plot(val_arr)
+            plt.show()
             return
 
         # system: x[t+1] = x[t] + u[t]
@@ -41,8 +48,8 @@ def test(system, p, i, d):
     plt.show()
 
 if __name__ == "__main__":
-    test(simple_system, 1.5, 0, 0)
-    test(cubic_system, 11, 11, 11)
+    # test(simple_system, 1.5, 0, 0, 15)
+    test(cubic_system, 1000, 0, 0, 10)
     # test(exponential_sys)
     
 # TODO: write tests for complicated systems
