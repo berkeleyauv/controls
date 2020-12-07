@@ -95,9 +95,9 @@ def main() -> None:
     rclpy.init()
 
     try:
-        # velocity_control.py from the Plankton repo uses is_sim_time() here for some reason idk
+        sim_time_param = is_sim_time()
 
-        node = OrientationController("orientation_controller")
+        node = OrientationController("orientation_controller", parameter_overrides=[sim_time_param])
         rclpy.spin(node)
     except Exception as e:
         print('Caught exception: ' + str(e))
