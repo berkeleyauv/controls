@@ -3,11 +3,26 @@
 import numpy as np
 import rclpy
 from rclpy import Node
+from rclpy.clock import ClockType
 from rcl_interfaces.msg import ParameterDescriptor
 import geometry_msgs.msg as geometry_msgs
 from nav_msgs.msg import Odometry
 
 from PIDController import PID
+
+
+def time_in_float_sec(time: rclpy.time.Time):
+    """
+    From a Time object, returns the associated time in float seconds
+    """
+    sec_nano = time.seconds_nanoseconds()
+    f_time = sec_nano[0] + sec_nano[1] / 1e9
+    return f_time
+
+def time_in_float_sec_from_msg(time_msg, clock_type=ClockType.ROS_TIME):
+    """From a Time message, returns the associated time in float seconds."""
+    time_object = rclpy.time.Time.from_msg(time_msg, clock_type)
+    return time_in_float_sec(time_object)
 
 class OrientationController(Node):
     def __init__(self, node_name, **kwargs):
@@ -16,9 +31,10 @@ class OrientationController(Node):
 
         self.config = {}
 
-        self.v_angular_des = numpy.zeros(3)
+        self.v_angular_des = np.zeros(3)
 
         # Initialize pids with default parameters
+        # TODO: correctly initialize PID parameters
         self.pid_angular = PID(1, 0, 0, 1)
 
         # Declared parameters are overriden with yaml values
@@ -57,12 +73,10 @@ class OrientationController(Node):
         v_angular = np.array([angular.x, angular.y, angular.z])
         
         # Compute compute control output:
-        # TODO: correctly use our own PID here
         t = time_in_float_sec_from_msg(msg.header.stamp)
         
-        e_v_angular = (self.v_angular_des - v_angular)
-        
-        a_angular = self.pid_angular.regulate(e_v_angular, t)
+        # TODO: make sure our this is correctly using our own PID
+        a_angular = self.pid_angular.calculate(v_angular, t)
 
         # Convert and publish accel. command:
         cmd_accel = geometry_msgs.Accel()
@@ -70,7 +84,7 @@ class OrientationController(Node):
         self.pub_cmd_accel.publish(cmd_accel)
 
     #==============================================================================
-    def callback_params(self, data): #idk what this does
+    def callback_params(self, data):
         for parameter in data:
             self.config[parameter.name] = parameter.value
         
