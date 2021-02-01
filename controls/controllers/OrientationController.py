@@ -10,19 +10,9 @@ from nav_msgs.msg import Odometry
 
 from PIDController import PID
 
-
-def time_in_float_sec(time: rclpy.time.Time):
-    """
-    From a Time object, returns the associated time in float seconds
-    """
-    sec_nano = time.seconds_nanoseconds()
-    f_time = sec_nano[0] + sec_nano[1] / 1e9
-    return f_time
-
-def time_in_float_sec_from_msg(time_msg, clock_type=ClockType.ROS_TIME):
-    """From a Time message, returns the associated time in float seconds."""
-    time_object = rclpy.time.Time.from_msg(time_msg, clock_type)
-    return time_in_float_sec(time_object)
+# modules from plankton repo
+from plankton_utils.time import time_in_float_sec_from_msg
+from plankton_utils.time import is_sim_time
 
 class OrientationController(Node):
     def __init__(self, node_name, **kwargs):
@@ -54,7 +44,7 @@ class OrientationController(Node):
         # TODO: find which topics to subscribe/publish to
         self.sub_cmd_vel = self.create_subscription(geometry_msgs.Twist, 'cmd_vel', self.cmd_vel_callback, 10)
         self.sub_odometry = self.create_subscription(Odometry, 'odom', self.odometry_callback, 10)
-        self.pub_cmd_accel = self.create_publisher( geometry_msgs.Accel, 'cmd_accel', 10)
+        self.pub_cmd_accel = self.create_publisher(geometry_msgs.Accel, 'cmd_accel', 10)
 
     #==============================================================================
     def cmd_vel_callback(self, msg):
@@ -69,13 +59,14 @@ class OrientationController(Node):
         if not bool(self.config):
             return
 
+        +
         angular = msg.twist.twist.angular
         v_angular = np.array([angular.x, angular.y, angular.z])
         
         # Compute compute control output:
         t = time_in_float_sec_from_msg(msg.header.stamp)
         
-        # TODO: make sure our this is correctly using our own PID
+        # TODO: make sure this is correctly using our own PID
         a_angular = self.pid_angular.calculate(v_angular, t)
 
         # Convert and publish accel. command:
@@ -109,6 +100,7 @@ def main() -> None:
     rclpy.init()
 
     try:
+        # TODO: figure out if we can use plankton's is_sim_time
         sim_time_param = is_sim_time()
 
         node = OrientationController("orientation_controller", parameter_overrides=[sim_time_param])
