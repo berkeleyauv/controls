@@ -14,7 +14,7 @@ class PublishPose(Node):
     '''
     def __init__(self):
         super().__init__("pose_publisher")
-        self.pub = self.create_publisher(PoseStamped, "/sub/cmd_pose", 10)
+        self.pub = self.create_publisher(PoseStamped, "/rexrov/cmd_pose", 10)
 
     def send(self, msg):
         """

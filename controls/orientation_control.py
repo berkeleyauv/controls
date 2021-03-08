@@ -8,6 +8,7 @@ from uuv_PID import PIDRegulator
 
 import geometry_msgs.msg as geometry_msgs
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu
 
 import tf_quaternion.transformations as transf
 
@@ -18,10 +19,10 @@ from rclpy.node import Node
 from plankton_utils.time import time_in_float_sec_from_msg
 from plankton_utils.time import is_sim_time
 
-class PositionControllerIMUNode(Node):
+class OrientationControllerNode(Node):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        self.get_logger().info('PositionControllerNode: initializing node')
+        self.get_logger().info('OrientationControllerNode: initializing node')
 
         self.config = {}
 
@@ -43,8 +44,7 @@ class PositionControllerIMUNode(Node):
 
         # ROS infrastructure
         self.sub_cmd_pose = self.create_subscription(geometry_msgs.PoseStamped, 'cmd_pose', self.cmd_pose_callback, 10)
-        self.sub_odometry = self.create_subscription(Odometry, 'odom', self.odometry_callback, 10)
-        
+        self.sub_odometry = self.create_subscription(Imu, 'imu', self.odometry_callback, 10)
         self.pub_cmd_vel = self.create_publisher(geometry_msgs.Twist, 'cmd_vel', 10)        
 
     #==============================================================================
@@ -60,7 +60,7 @@ class PositionControllerIMUNode(Node):
         if not bool(self.config):
             return
 
-        q = msg.pose.pose.orientation
+        q = msg.orientation
         q = numpy.array([q.x, q.y, q.z, q.w])
 
         if not self.initialized:
@@ -112,13 +112,13 @@ class PositionControllerIMUNode(Node):
 
 #==============================================================================
 def main():
-    print('Starting position_control_imu.py')
+    print('Starting orientation_control.py')
     rclpy.init()
 
     try:
         sim_time_param = is_sim_time()
 
-        node = PositionControllerIMUNode('position_control', parameter_overrides=[sim_time_param])
+        node = OrientationControllerNode('orientation_control', parameter_overrides=[sim_time_param])
         rclpy.spin(node)
     except Exception as e:
         print('Caught exception: ' + str(e))
