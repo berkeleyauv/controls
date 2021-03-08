@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'init = controls.sub_init:processInput',
             'velocity_transformer = controls.velocity_transformer:main',
+            'pose_publisher = controls.pose_publisher:main'
         ],
     },
 )

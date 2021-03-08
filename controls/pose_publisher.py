@@ -34,10 +34,7 @@ class PublishPose(Node):
         self.send(PoseStamped())
 
 
-if __name__ == '__main__':
-    '''
-    This is where the code starts running
-    '''
+def main():
     rclpy.init(args=sys.argv)
     publisher = PublishPose()
     while rclpy.ok():
@@ -46,3 +43,8 @@ if __name__ == '__main__':
         print(pose)
         publisher.send(pose)
     rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+
