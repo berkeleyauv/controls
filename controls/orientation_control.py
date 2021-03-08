@@ -43,6 +43,9 @@ class OrientationControllerNode(Node):
         self.create_pids(self.config)
 
         # ROS infrastructure
+        print()
+        print("I REACHED HERE AT LEAST")
+        print()
         self.sub_cmd_pose = self.create_subscription(geometry_msgs.PoseStamped, 'cmd_pose', self.cmd_pose_callback, 10)
         self.sub_odometry = self.create_subscription(Imu, 'imu', self.odometry_callback, 10)
         self.pub_cmd_vel = self.create_publisher(geometry_msgs.Twist, 'cmd_vel', 10)        
@@ -112,6 +115,10 @@ class OrientationControllerNode(Node):
 
 #==============================================================================
 def main():
+    print()
+    print("I REACHED HERE AT LEAST")
+    print()
+
     print('Starting orientation_control.py')
     rclpy.init()
 
