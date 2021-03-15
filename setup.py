@@ -7,7 +7,6 @@ package_name = 'controls'
 setup(
     name=package_name,
     version='0.0.0',
-    package_dir={'': 'src'},
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -26,7 +25,7 @@ setup(
         'console_scripts': [
             'init = controls.sub_init:processInput',
             'velocity_transformer = controls.velocity_transformer:main',
-            'orientation_control = controls.orientation_control:main'
+            'orientation_control = controls.orientation_control:main',
             'pose_publisher = controls.pose_publisher:main'
         ],
     },
