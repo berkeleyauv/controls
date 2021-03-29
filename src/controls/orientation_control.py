@@ -78,9 +78,6 @@ class OrientationControllerNode(Node):
         # Error angles
         e_rot = numpy.array(transf.euler_from_quaternion(e_rot_quat))
 
-        # print(e_pos_body.shape)
-        # print(e_rot.shape)
-
         v_angular = self.pid_rot.regulate(e_rot, t)
 
         # Convert and publish vel. command:
@@ -124,6 +121,7 @@ def main():
     except Exception as e:
         print('Caught exception: ' + str(e))
     finally:
+        node.pub_cmd_vel.publish(Twist())
         if rclpy.ok():
             rclpy.shutdown()
         print('Exiting')
